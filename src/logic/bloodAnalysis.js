@@ -28,38 +28,6 @@ export const SAMPLE_VALUES = {
   sodium: 148,
 }
 
-// Stable string -> int hash (no Math.random; deterministic per file).
-function hashSeed(str) {
-  let h = 2166136261
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return Math.abs(h)
-}
-
-/**
- * DEMO "OCR": deterministically derive blood values from an uploaded
- * file's metadata, so the upload flow produces a result. Values land
- * mostly in-range with a few out-of-range, for a realistic demo.
- * Replace with a real OCR/LLM backend that reads the actual file.
- * @returns {Record<string, number>}
- */
-export function extractValuesFromFile(fileMeta) {
-  const seed = hashSeed(`${fileMeta?.name || 'blood'}-${fileMeta?.size || 1}`)
-  const values = {}
-  BLOOD_MARKERS.forEach((m, i) => {
-    const span = (m.max - m.min) || 1
-    const lo = m.min - span * 0.25
-    const hi = m.max + span * 0.25
-    const frac = ((seed >> (i * 3)) % 1000) / 1000 // 0..1, deterministic
-    const raw = lo + frac * (hi - lo)
-    const factor = Math.pow(10, m.decimals)
-    values[m.key] = Math.round(raw * factor) / factor
-  })
-  return values
-}
-
 function statusOf(value, marker) {
   if (value == null || value === '' || Number.isNaN(Number(value))) return null
   const v = Number(value)
