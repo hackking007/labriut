@@ -1,0 +1,19 @@
+# Render Blueprint — deploys LaBriut as a static site (Vite build).
+# In the Render dashboard: New + → Blueprint → connect this repo → Apply.
+services:
+  - type: web
+    name: labriut
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    # SPA rewrite: send every path to index.html so React Router can
+    # handle client-side routes (/blood, /eye, /nutrition, /articles).
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    # Light security/caching headers for the static assets.
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
