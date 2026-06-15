@@ -8,6 +8,7 @@ import {
   SAMPLE_VALUES,
   analyzeBloodTest,
   buildMealPlan,
+  extractValuesFromFile,
 } from '../logic/bloodAnalysis.js'
 
 export default function BloodTest() {
@@ -16,13 +17,26 @@ export default function BloodTest() {
   const [values, setValues] = useState({})
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [scanned, setScanned] = useState(false)
 
   function setVal(key, v) {
     setValues((prev) => ({ ...prev, [key]: v }))
+    setScanned(false)
+  }
+
+  // Uploading a file "scans" it: fill the marker values from the file
+  // (demo OCR) so the upload flow actually produces a result.
+  function handleFile(f) {
+    setFile(f)
+    if (f) {
+      setValues(extractValuesFromFile({ name: f.name, size: f.size }))
+      setScanned(true)
+    }
   }
 
   function fillSample() {
     setValues({ ...SAMPLE_VALUES })
+    setScanned(false)
   }
 
   function runAnalysis() {
@@ -47,6 +61,7 @@ export default function BloodTest() {
     setFile(null)
     setValues({})
     setResult(null)
+    setScanned(false)
   }
 
   return (
@@ -71,9 +86,11 @@ export default function BloodTest() {
               hint={t.blood.uploadHint}
               accept=".pdf,image/*"
               file={file}
-              onFile={setFile}
+              onFile={handleFile}
             />
-            <p className="tool-note">🔒 {t.blood.uploadNote}</p>
+            {scanned
+              ? <p className="tool-note tool-note--scan">✅ {t.blood.scanned}</p>
+              : <p className="tool-note">🔒 {t.blood.uploadNote}</p>}
 
             <div className="divider"><span>{t.blood.orDivider}</span></div>
 
