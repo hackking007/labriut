@@ -284,7 +284,9 @@ export const translations = {
     // ---- Blood test page ----
     blood: {
       title: 'ניתוח בדיקת דם',
-      subtitle: 'העלו קובץ או הזינו ערכים ידנית, והסוכן ייתן ניתוח ראשוני מובן.',
+      subtitle: 'הזינו את ערכי בדיקת הדם, והסוכן ייתן ניתוח ראשוני מובן.',
+      manualTitle: 'הזנת ערכי הבדיקה',
+      manualHint: 'הקלידו את הערכים מתוך תוצאות בדיקת הדם שלכם, או מלאו ערכי דוגמה.',
       uploadTitle: 'העלאת בדיקה',
       uploadHint: 'גררו לכאן קובץ PDF / תמונה, או לחצו לבחירה',
       uploadNote: 'הקובץ נקרא במכשיר שלכם בלבד — לא נשלח לשרת.',
@@ -680,7 +682,9 @@ export const translations = {
 
     blood: {
       title: 'Blood Test Analysis',
-      subtitle: 'Upload a file or enter values manually, and the agent gives a clear first-pass analysis.',
+      subtitle: 'Enter your blood test values, and the agent gives a clear first-pass analysis.',
+      manualTitle: 'Enter your test values',
+      manualHint: 'Type the values from your blood test results, or fill sample values.',
       uploadTitle: 'Upload a test',
       uploadHint: 'Drag a PDF / image here, or click to choose',
       uploadNote: 'The file is read on your device only — it is not sent to a server.',

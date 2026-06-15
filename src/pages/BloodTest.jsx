@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useLang } from '../i18n/LanguageContext.jsx'
 import DisclaimerNote from '../components/DisclaimerNote.jsx'
-import UploadZone from '../components/UploadZone.jsx'
 import PrintHeader, { PrintDisclaimer } from '../components/PrintHeader.jsx'
 import {
   BLOOD_MARKERS,
@@ -12,52 +11,16 @@ import {
 
 export default function BloodTest() {
   const { t, lang } = useLang()
-  const [file, setFile] = useState(null)
   const [values, setValues] = useState({})
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  // scan: null | { status: 'ok'|'empty'|'image'|'error', count?: number }
-  const [scan, setScan] = useState(null)
 
   function setVal(key, v) {
     setValues((prev) => ({ ...prev, [key]: v }))
-    setScan(null)
-  }
-
-  // Uploading a PDF reads it for real (client-side, via pdf.js) and
-  // fills the values it recognizes. Images aren't OCR'd (yet).
-  async function handleFile(f) {
-    setFile(f)
-    setScan(null)
-    if (!f) return
-
-    const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')
-    if (!isPdf) {
-      setScan({ status: 'image' })
-      return
-    }
-
-    setScanning(true)
-    try {
-      const { parseBloodPdf } = await import('../logic/pdfParser.js')
-      const { values: v, found, hadText } = await parseBloodPdf(f)
-      if (found.length > 0) {
-        setValues(v)
-        setScan({ status: 'ok', count: found.length })
-      } else {
-        setScan({ status: hadText ? 'empty' : 'image' })
-      }
-    } catch {
-      setScan({ status: 'error' })
-    } finally {
-      setScanning(false)
-    }
   }
 
   function fillSample() {
     setValues({ ...SAMPLE_VALUES })
-    setScan(null)
   }
 
   function runAnalysis() {
@@ -79,10 +42,8 @@ export default function BloodTest() {
   }
 
   function reset() {
-    setFile(null)
     setValues({})
     setResult(null)
-    setScan(null)
   }
 
   return (
@@ -101,17 +62,8 @@ export default function BloodTest() {
         <div className="tool-grid">
           {/* INPUT SIDE */}
           <section className="tool-panel">
-            <h2 className="tool-panel__title">{t.blood.uploadTitle}</h2>
-            <UploadZone
-              icon="🧪"
-              hint={t.blood.uploadHint}
-              accept=".pdf,image/*"
-              file={file}
-              onFile={handleFile}
-            />
-            <ScanNote scanning={scanning} scan={scan} t={t} />
-
-            <div className="divider"><span>{t.blood.orDivider}</span></div>
+            <h2 className="tool-panel__title">{t.blood.manualTitle}</h2>
+            <p className="tool-note">{t.blood.manualHint}</p>
 
             <div className="marker-inputs">
               {BLOOD_MARKERS.map((m) => (
@@ -187,16 +139,6 @@ export default function BloodTest() {
       </div>
     </div>
   )
-}
-
-function ScanNote({ scanning, scan, t }) {
-  const s = t.blood.scan
-  if (scanning) return <p className="tool-note tool-note--scan">⏳ {s.reading}</p>
-  if (!scan) return <p className="tool-note">🔒 {t.blood.uploadNote}</p>
-  if (scan.status === 'ok') return <p className="tool-note tool-note--scan">✅ {s.ok(scan.count)}</p>
-  if (scan.status === 'empty') return <p className="tool-note tool-note--warn">⚠️ {s.empty}</p>
-  if (scan.status === 'image') return <p className="tool-note tool-note--warn">🖼️ {s.image}</p>
-  return <p className="tool-note tool-note--warn">⚠️ {s.error}</p>
 }
 
 function AgentThinking({ label }) {
